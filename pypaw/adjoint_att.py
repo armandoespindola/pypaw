@@ -66,6 +66,8 @@ def load_adjoint_config(config, adjsrc_type):
         ConfigClass = pyadjoint.ConfigCrossCorrelation
     elif adjsrc_type == "waveform_misfit":
         ConfigClass = pyadjoint.ConfigWaveForm
+    elif adjsrc_type == "exponentiated_phase_misfit":
+        ConfigClass = pyadjoint.ConfigExponentiatedPhase
     else:
         raise ValueError("Unrecoginsed adj_src_type(%s)" % adjsrc_type)
 
@@ -117,6 +119,8 @@ def adjoint_wrapper(obsd_station_group, synt_station_group, config=None,
     :type figure_dir: str
     :return: adjoint sources for pyasdf write out(reshaped)
     """
+
+
     # Make sure everything thats required is there.
     if not hasattr(obsd_station_group, obsd_tag):
         print("Missing tag '%s' from obsd_station_group %s. Skipped." %
@@ -222,6 +226,7 @@ class AttenuationAdjointASDF(ProcASDFBase):
         adjoint_param = param["adjoint_config"]
         postproc_param = param["process_config"]
         ref_freq = self.options["reference_frequency"]
+        print("###### ",ref_freq)
 
         obsd_file = path["obsd_asdf"]
         synt_file = path["synt_asdf"]
@@ -264,6 +269,7 @@ class AttenuationAdjointASDF(ProcASDFBase):
                     reference_frequency=ref_freq,
                     postproc_param=postproc_param,
                     figure_mode=figure_mode, figure_dir=figure_dir)
+
 
         results = obsd_ds.process_two_files(synt_ds, adjsrc_func,
                                             output_filename)

@@ -83,6 +83,11 @@ def save_adjoint_to_asdf(outputfile, events, adjoint_sources, stations):
 
     ds = ASDFDataSet(outputfile, mode='a', compression=None)
     ds.add_quakeml(events)
+    nam_stat=""
+    dir_name = os.path.dirname(outputfile)
+    name_file=dir_name + "/STATIONS_ADJOINT." + os.path.basename(outputfile).split(".")[1]
+    print(name_file)
+    f=open(name_file,'w')
     for adj_id in sorted(adjoint_sources):
         adj = adjoint_sources[adj_id]
         sta_tag = "%s_%s" % (adj.network, adj.station)
@@ -92,6 +97,12 @@ def save_adjoint_to_asdf(outputfile, events, adjoint_sources, stations):
         ds.add_auxiliary_data(adj_array, data_type="AdjointSources",
                               path=adj_path, parameters=parameters)
 
+        if adj.station != nam_stat:
+            #'elevation_in_m': 618.0, 'depth_in_m':
+            f.write("%s\t%s\t%f\t%f\t%f\t%f\n" % (sta_info['station'],sta_info['network'],sta_info['latitude'],sta_info['longitude'],sta_info['elevation_in_m']
+                                                  ,sta_info['depth_in_m']))
+            nam_stat=adj.station
+    f.close()
 
 def check_event_information_in_asdf_files(asdf_files):
     if len(asdf_files) == 0:
@@ -176,6 +187,7 @@ class PostAdjASDF(object):
             adj_id = "%s_%s_MX%s" % (_nw, _sta, _comp[-1])
             adj = adjsrc_group[adj_id]
             new_adj, station_info = load_to_adjsrc(adj)
+
 
             channel_weight = weights[channel]["weight"]
             # add station information
